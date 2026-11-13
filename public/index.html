@@ -5,105 +5,236 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Leave Approval</title>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--text:#1c2430;--muted:#667085;--line:#e4e7ec;--accent:#2f6fed;--accent-text:#fff;
---ok:#067647;--ok-bg:#dcfae6;--warn:#93370d;--warn-bg:#fef0c7;--bad:#b42318;--bad-bg:#fee4e2;--off:#475467;--off-bg:#eaecf0}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1319;--card:#171c24;--text:#e8ecf2;--muted:#98a2b3;--line:#2a313c;--accent:#5b8cff;--accent-text:#0b1020;
---ok:#75e0a7;--ok-bg:#053321;--warn:#fec84b;--warn-bg:#42300a;--bad:#fda29b;--bad-bg:#4a1410;--off:#cbd5e1;--off-bg:#2a313c}}
+:root{
+  --bg:#eef2f7;--card:#ffffff;--text:#16202e;--muted:#5b6778;--line:#dde3ec;--head:#eaf0f8;--hover:#f3f7fc;--zebra:#f9fbfe;
+  --brand:#14305a;--brand2:#1f4e8c;--gold:#c9a227;--btn:#1f4e8c;--btn-text:#fff;--focus:rgba(31,78,140,.25);
+  --ok:#067647;--ok-bg:#d9f5e5;--warn:#8a4b08;--warn-bg:#fdf0c9;--bad:#b42318;--bad-bg:#fde3e0;--off:#475467;--off-bg:#e8ecf2;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0b111d;--card:#131b2c;--text:#e6ebf3;--muted:#94a1b5;--line:#25314a;--head:#1a2540;--hover:#18233a;--zebra:#111a2b;
+  --brand:#0f2747;--brand2:#3b74c4;--btn:#3b74c4;--btn-text:#071022;--focus:rgba(91,140,255,.3);
+  --ok:#75e0a7;--ok-bg:#053321;--warn:#fec84b;--warn-bg:#42300a;--bad:#fda29b;--bad-bg:#4a1410;--off:#cbd5e1;--off-bg:#25314a;
+}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-.wrap{max-width:980px;margin:0 auto;padding:16px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-h1{font-size:1.25rem;margin:0}
-h2{font-size:1rem;margin:0 0 12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
-.login{max-width:380px;margin:12vh auto 0}
-label{display:block;font-size:.875rem;color:var(--muted);margin:10px 0 4px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif}
+[hidden]{display:none!important}
+h1,h2{margin:0}
 input,select,textarea,button{font:inherit;color:inherit}
-input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+
+/* ---------- buttons and fields ---------- */
+label{display:block;font-size:.85rem;font-weight:600;color:var(--muted);margin:14px 0 5px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand2);box-shadow:0 0 0 3px var(--focus)}
 button{cursor:pointer;border:1px solid var(--line);background:var(--card);padding:7px 12px;border-radius:8px}
-button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);margin-top:14px;width:100%}
-button.sm{padding:4px 9px;font-size:.85rem}
+button:hover{border-color:var(--brand2)}
+button.primary{background:linear-gradient(180deg,var(--brand2),var(--btn));color:var(--btn-text);border-color:var(--btn);font-weight:600;margin-top:18px;padding:10px 20px}
+button.primary:hover{filter:brightness(1.08)}
+button.full{width:100%}
+button.sm{padding:4px 10px;font-size:.85rem}
 button.ok{border-color:var(--ok);color:var(--ok)}
 button.bad{border-color:var(--bad);color:var(--bad)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.bal{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column}
-.bal span{font-size:1.5rem;font-weight:600}
-.bal small,.muted{color:var(--muted)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.scroll{overflow-x:auto}
+.lang{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:#fff}
+.lang:hover{background:rgba(255,255,255,.22);border-color:#fff}
+
+/* ---------- login ---------- */
+.auth{display:grid;grid-template-columns:1.1fr 1fr;min-height:100vh}
+.brandpane{position:relative;color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:center;
+  background:radial-gradient(900px 500px at 10% 0%,rgba(201,162,39,.18),transparent 60%),linear-gradient(155deg,#0d2342 0%,#17407a 55%,#2563a8 100%)}
+.brandpane .lang{position:absolute;top:16px;right:16px}
+.logo{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center;margin-bottom:22px}
+.brandpane h1{font-size:2rem;line-height:1.2}
+.tagline{opacity:.85;margin:8px 0 28px;max-width:34ch}
+.feats{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.feats li{display:flex;gap:10px;align-items:flex-start}
+.feats li::before{content:"";flex:none;width:8px;height:8px;margin-top:9px;border-radius:50%;background:var(--gold)}
+.formpane{display:flex;align-items:center;justify-content:center;padding:32px;background:var(--card)}
+.formbox{width:100%;max-width:360px}
+.formbox h2{font-size:1.4rem;margin-bottom:4px}
+.formbox .muted{margin:0 0 6px}
+@media (max-width:760px){
+  .auth{grid-template-columns:1fr;min-height:0}
+  .brandpane{padding:28px 20px 24px}
+  .brandpane h1{font-size:1.5rem}
+  .feats{display:none}
+  .formpane{padding:24px 16px}
+}
+
+/* ---------- app shell ---------- */
+.nav{background:linear-gradient(90deg,#0d2342,var(--brand) 60%,#1b4a86);color:#fff;border-bottom:3px solid var(--gold)}
+.navin{max-width:1000px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem}
+.brand .logo{width:36px;height:36px;border-radius:10px;margin:0}
+.navr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:999px;padding:4px 6px 4px 14px}
+.role{background:var(--gold);color:#241c00;border-radius:999px;padding:1px 10px;font-size:.75rem;font-weight:700}
+.signout{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+.signout:hover{background:rgba(255,255,255,.15);border-color:#fff}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 32px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,30,60,.06)}
+.card h2{font-size:1.05rem;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.card h2::before{content:"";width:5px;height:20px;border-radius:3px;background:linear-gradient(180deg,var(--gold),var(--brand2))}
+.muted{color:var(--muted)}
+
+/* ---------- balances ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.bal{--c:var(--brand2);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--card)}
+.bal b{font-size:.9rem;color:var(--muted);font-weight:600}
+.bal span{font-size:1.6rem;font-weight:700}
+.bal small{color:var(--muted)}
+.bar{height:6px;border-radius:99px;background:var(--off-bg);overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;background:var(--c);border-radius:99px}
+.c-ANNUAL{--c:#2563eb}.c-SICK{--c:#0f9d8a}.c-PERSONAL{--c:#d97706}
+
+/* ---------- form and table ---------- */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
 table{width:100%;border-collapse:collapse;font-size:.92rem}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--muted);font-weight:500}
-.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:600}
+th,td{text-align:left;padding:10px 12px;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{background:var(--head);color:var(--muted);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em}
+tbody tr:nth-child(even){background:var(--zebra)}
+tbody tr:hover{background:var(--hover)}
+tbody tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:700}
 .PENDING{background:var(--warn-bg);color:var(--warn)}
 .APPROVED{background:var(--ok-bg);color:var(--ok)}
 .REJECTED{background:var(--bad-bg);color:var(--bad)}
 .CANCELLED{background:var(--off-bg);color:var(--off)}
-.err{color:var(--bad);min-height:1.4em;margin:8px 0 0;font-size:.9rem}
-#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.err{color:var(--bad);min-height:1.4em;margin:10px 0 0;font-size:.9rem}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--brand);color:#fff;border-left:4px solid var(--gold);padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 #toast.show{opacity:1}
-[hidden]{display:none!important}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<section id="loginView" class="card login" hidden>
-  <h1>Leave Approval</h1>
-  <p class="muted">Sign in to request or approve leave.</p>
-  <form id="loginForm">
-    <label for="email">Email</label>
-    <input id="email" type="email" autocomplete="username" required>
-    <label for="password">Password</label>
-    <input id="password" type="password" autocomplete="current-password" required>
-    <button class="primary" type="submit">Sign in</button>
-    <p id="loginError" class="err" role="alert"></p>
-  </form>
+<section id="loginView" class="auth" hidden>
+  <div class="brandpane">
+    <button class="lang sm" type="button" aria-label="Language"></button>
+    <div class="logo" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M9 15l2 2 4-4"/></svg>
+    </div>
+    <h1 data-i18n="title"></h1>
+    <p class="tagline" data-i18n="tagline"></p>
+    <ul class="feats">
+      <li data-i18n="f1"></li>
+      <li data-i18n="f2"></li>
+      <li data-i18n="f3"></li>
+    </ul>
+  </div>
+  <div class="formpane">
+    <form id="loginForm" class="formbox">
+      <h2 data-i18n="signin"></h2>
+      <p class="muted" data-i18n="loginHint"></p>
+      <label for="email" data-i18n="email"></label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password" data-i18n="password"></label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button class="primary full" type="submit" data-i18n="signin"></button>
+      <p id="loginError" class="err" role="alert"></p>
+    </form>
+  </div>
 </section>
 
 <section id="appView" hidden>
-  <header>
-    <h1>Leave Approval</h1>
-    <div><span id="who"></span> <button id="logout" class="sm">Sign out</button></div>
-  </header>
-
-  <div class="card">
-    <h2>My leave balance <span id="balYear" class="muted"></span></h2>
-    <div id="balances" class="grid"></div>
-  </div>
-
-  <div class="card">
-    <h2>Request leave</h2>
-    <form id="leaveForm">
-      <div class="row2">
-        <div><label for="type">Leave type</label><select id="type" required></select></div>
-        <div></div>
-        <div><label for="start">From</label><input id="start" type="date" required></div>
-        <div><label for="end">To</label><input id="end" type="date" required></div>
+  <nav class="nav"><div class="navin">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M9 15l2 2 4-4"/></svg>
       </div>
-      <label for="reason">Reason (optional)</label>
-      <textarea id="reason" rows="2" maxlength="300"></textarea>
-      <button class="primary" type="submit">Submit request</button>
-      <p id="formError" class="err" role="alert"></p>
-    </form>
-  </div>
+      <span data-i18n="title"></span>
+    </div>
+    <div class="navr">
+      <div class="chip"><span id="whoName"></span><span id="whoRole" class="role"></span></div>
+      <button class="lang sm" type="button" aria-label="Language"></button>
+      <button id="logout" class="signout sm" data-i18n="signout"></button>
+    </div>
+  </div></nav>
 
-  <div class="card">
-    <h2 id="listTitle">Requests</h2>
-    <div class="scroll"><table>
-      <thead><tr><th>#</th><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th></th></tr></thead>
-      <tbody id="rows"></tbody>
-    </table></div>
-    <p id="empty" class="muted" hidden>No leave requests yet.</p>
-  </div>
+  <main class="wrap">
+    <div class="card">
+      <h2><span data-i18n="balTitle"></span> <span id="balYear" class="muted"></span></h2>
+      <div id="balances" class="grid"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="reqTitle"></h2>
+      <form id="leaveForm">
+        <div class="row2">
+          <div><label for="type" data-i18n="type"></label><select id="type" required></select></div>
+          <div></div>
+          <div><label for="start" data-i18n="from"></label><input id="start" type="date" required></div>
+          <div><label for="end" data-i18n="to"></label><input id="end" type="date" required></div>
+        </div>
+        <label for="reason" data-i18n="reason"></label>
+        <textarea id="reason" rows="2" maxlength="300"></textarea>
+        <button class="primary" type="submit" data-i18n="submit"></button>
+        <p id="formError" class="err" role="alert"></p>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 id="listTitle"></h2>
+      <div class="scroll"><table>
+        <thead><tr>
+          <th>#</th><th data-i18n="colEmployee"></th><th data-i18n="colType"></th><th data-i18n="colFrom"></th>
+          <th data-i18n="colTo"></th><th data-i18n="colDays"></th><th data-i18n="colStatus"></th><th></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <p id="empty" class="muted" data-i18n="empty" hidden></p>
+    </div>
+  </main>
 </section>
-</div>
+
 <div id="toast" role="status"></div>
 
 <script>
+const I18N = {
+  en: {
+    title: "Leave Approval", loginHint: "Sign in to request or approve leave.",
+    tagline: "A simple, reliable way to manage employee leave.",
+    f1: "Request and track leave online", f2: "Managers approve in one click", f3: "Balances and rules checked automatically",
+    email: "Email", password: "Password", signin: "Sign in", signout: "Sign out",
+    balTitle: "My leave balance", reqTitle: "Request leave", type: "Leave type",
+    from: "From", to: "To", reason: "Reason (optional)", submit: "Submit request",
+    colEmployee: "Employee", colType: "Type", colFrom: "From", colTo: "To", colDays: "Days", colStatus: "Status",
+    empty: "No leave requests yet.",
+    listEmployee: "My requests", listManager: "My requests and my team's", listAdmin: "All requests",
+    left: "{n} left", used: "{u} used of {a}",
+    approve: "Approve", reject: "Reject", cancel: "Cancel",
+    submitted: "Request submitted",
+    done_approve: "Request #{id} approved", done_reject: "Request #{id} rejected", done_cancel: "Request #{id} cancelled",
+    st_PENDING: "Pending", st_APPROVED: "Approved", st_REJECTED: "Rejected", st_CANCELLED: "Cancelled",
+    role_EMPLOYEE: "Employee", role_MANAGER: "Manager", role_ADMIN: "Admin",
+  },
+  th: {
+    title: "ระบบอนุมัติการลา", loginHint: "เข้าสู่ระบบเพื่อยื่นใบลาหรืออนุมัติใบลา",
+    tagline: "จัดการการลาของพนักงานอย่างเป็นระบบและน่าเชื่อถือ",
+    f1: "ยื่นและติดตามใบลาออนไลน์", f2: "หัวหน้าอนุมัติได้ในคลิกเดียว", f3: "ตรวจยอดวันลาและกฎให้อัตโนมัติ",
+    email: "อีเมล", password: "รหัสผ่าน", signin: "เข้าสู่ระบบ", signout: "ออกจากระบบ",
+    balTitle: "ยอดวันลาคงเหลือของฉัน", reqTitle: "ยื่นใบลา", type: "ประเภทการลา",
+    from: "ตั้งแต่วันที่", to: "ถึงวันที่", reason: "เหตุผล (ไม่บังคับ)", submit: "ส่งใบลา",
+    colEmployee: "พนักงาน", colType: "ประเภท", colFrom: "จาก", colTo: "ถึง", colDays: "วัน", colStatus: "สถานะ",
+    empty: "ยังไม่มีใบลา",
+    listEmployee: "ใบลาของฉัน", listManager: "ใบลาของฉันและของทีม", listAdmin: "ใบลาทั้งหมด",
+    left: "เหลือ {n} วัน", used: "ใช้แล้ว {u} จาก {a} วัน",
+    approve: "อนุมัติ", reject: "ไม่อนุมัติ", cancel: "ยกเลิก",
+    submitted: "ส่งใบลาแล้ว",
+    done_approve: "ใบลา #{id}: อนุมัติแล้ว", done_reject: "ใบลา #{id}: ไม่อนุมัติแล้ว", done_cancel: "ใบลา #{id}: ยกเลิกแล้ว",
+    st_PENDING: "รออนุมัติ", st_APPROVED: "อนุมัติแล้ว", st_REJECTED: "ไม่อนุมัติ", st_CANCELLED: "ยกเลิกแล้ว",
+    role_EMPLOYEE: "พนักงาน", role_MANAGER: "หัวหน้า", role_ADMIN: "ผู้ดูแลระบบ",
+    lt_ANNUAL: "ลาพักร้อน", lt_SICK: "ลาป่วย", lt_PERSONAL: "ลากิจ",
+  },
+};
+
 const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+let lang = (navigator.language || "").toLowerCase().startsWith("th") ? "th" : "en";
+try { lang = localStorage.getItem("lang") || lang; } catch {}
+const t = (k, v = {}) => (I18N[lang][k] ?? I18N.en[k] ?? k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? "");
+const ltLabel = (code, name) => (lang === "th" && I18N.th["lt_" + code]) || name || code;
 
 let token = null, me = null;
 try { token = sessionStorage.getItem("token"); } catch {}
@@ -126,11 +257,22 @@ async function api(path, opts = {}) {
 
 let toastTimer;
 function toast(msg) {
-  const t = $("#toast");
-  t.textContent = msg;
-  t.classList.add("show");
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+function applyStatic() {
+  document.documentElement.lang = lang;
+  document.title = t("title");
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll(".lang").forEach((b) => { b.textContent = lang === "th" ? "EN" : "ไทย"; });
+  if (me) {
+    $("#whoName").textContent = me.name;
+    $("#whoRole").textContent = t("role_" + me.role);
+  }
 }
 
 function logout() {
@@ -145,53 +287,69 @@ const list = (raw, ...keys) => Array.isArray(raw) ? raw : (keys.map((k) => raw?.
 async function loadBalances() {
   const raw = await api(`/employees/${me.id}/balance`);
   $("#balYear").textContent = raw?.year ? `(${raw.year})` : "";
-  $("#balances").innerHTML = list(raw, "balances", "items", "leaveTypes").map((r) => `
-    <div class="bal"><b>${esc(r.leaveType ?? r.code ?? r.name)}</b>
-    <span>${esc(r.remaining)} left</span>
-    <small>${esc(r.used)} used of ${esc(r.allowance)}</small></div>`).join("");
+  $("#balances").innerHTML = list(raw, "balances", "items", "leaveTypes").map((r) => {
+    const code = r.leaveType ?? r.code ?? r.name;
+    const used = Number(r.used), allow = Number(r.allowance);
+    const pct = allow > 0 ? Math.max(0, Math.min(100, Math.round((used / allow) * 100))) : 0;
+    return `<div class="bal c-${esc(code)}"><b>${esc(ltLabel(code, code))}</b>
+      <span>${esc(t("left", { n: r.remaining }))}</span>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <small>${esc(t("used", { u: r.used, a: r.allowance }))}</small></div>`;
+  }).join("");
 }
 
 async function loadTypes() {
+  const keep = $("#type").value;
   const types = list(await api("/leave-types"), "leaveTypes", "items");
-  $("#type").innerHTML = types.map((t) => {
-    const code = t.code ?? t.leaveTypeCode;
-    return `<option value="${esc(code)}">${esc(t.name ?? code)}</option>`;
+  $("#type").innerHTML = types.map((x) => {
+    const code = x.code ?? x.leaveTypeCode;
+    return `<option value="${esc(code)}">${esc(ltLabel(code, x.name))}</option>`;
   }).join("");
+  if (keep) $("#type").value = keep;
 }
 
 async function loadRequests() {
   const rows = list(await api("/leave-requests"), "requests", "items");
   const canDecide = me.role === "MANAGER" || me.role === "ADMIN";
-  $("#listTitle").textContent = me.role === "EMPLOYEE" ? "My requests" : me.role === "MANAGER" ? "My requests and my team's" : "All requests";
+  $("#listTitle").textContent = t(me.role === "EMPLOYEE" ? "listEmployee" : me.role === "MANAGER" ? "listManager" : "listAdmin");
   $("#empty").hidden = rows.length > 0;
   $("#rows").innerHTML = rows.map((r) => {
     const mine = r.employeeId !== undefined ? r.employeeId === me.id : r.employeeName === me.name;
     const btns = [];
     if (r.status === "PENDING" && canDecide && !mine) {
-      btns.push(`<button class="sm ok" data-act="approve" data-id="${esc(r.id)}">Approve</button>`);
-      btns.push(`<button class="sm bad" data-act="reject" data-id="${esc(r.id)}">Reject</button>`);
+      btns.push(`<button class="sm ok" data-act="approve" data-id="${esc(r.id)}">${esc(t("approve"))}</button>`);
+      btns.push(`<button class="sm bad" data-act="reject" data-id="${esc(r.id)}">${esc(t("reject"))}</button>`);
     }
     if (mine && (r.status === "PENDING" || r.status === "APPROVED")) {
-      btns.push(`<button class="sm" data-act="cancel" data-id="${esc(r.id)}">Cancel</button>`);
+      btns.push(`<button class="sm" data-act="cancel" data-id="${esc(r.id)}">${esc(t("cancel"))}</button>`);
     }
-    return `<tr><td>${esc(r.id)}</td><td>${esc(r.employeeName)}</td><td>${esc(r.leaveType)}</td>
+    return `<tr><td>${esc(r.id)}</td><td>${esc(r.employeeName)}</td><td>${esc(ltLabel(r.leaveType, r.leaveType))}</td>
       <td>${esc(r.startDate)}</td><td>${esc(r.endDate)}</td><td>${esc(r.days)}</td>
-      <td><span class="pill ${esc(r.status)}">${esc(r.status)}</span></td><td>${btns.join(" ")}</td></tr>`;
+      <td><span class="pill ${esc(r.status)}">${esc(t("st_" + r.status))}</span></td><td>${btns.join(" ")}</td></tr>`;
   }).join("");
 }
+
+const refresh = () => Promise.all([loadBalances(), loadTypes(), loadRequests()]);
 
 async function start() {
   try {
     const m = await api("/auth/me");
     me = m.user ?? m;
   } catch { logout(); return; }
-  $("#who").textContent = `${me.name} (${me.role})`;
+  applyStatic();
   $("#loginView").hidden = true;
   $("#appView").hidden = false;
   const today = new Date().toLocaleDateString("sv-SE");
   $("#start").min = today; $("#end").min = today;
-  await Promise.all([loadBalances(), loadTypes(), loadRequests()]).catch((e) => toast(e.message));
+  await refresh().catch((e) => toast(e.message));
 }
+
+document.querySelectorAll(".lang").forEach((b) => b.addEventListener("click", async () => {
+  lang = lang === "th" ? "en" : "th";
+  try { localStorage.setItem("lang", lang); } catch {}
+  applyStatic();
+  if (me) await refresh().catch(() => {});
+}));
 
 $("#loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -219,7 +377,7 @@ $("#leaveForm").addEventListener("submit", async (e) => {
       leaveTypeCode: $("#type").value, startDate: $("#start").value, endDate: $("#end").value,
       reason: $("#reason").value.trim() || null } });
     $("#leaveForm").reset();
-    toast("Request submitted");
+    toast(t("submitted"));
     await Promise.all([loadBalances(), loadRequests()]);
   } catch (err) { $("#formError").textContent = err.message; }
 });
@@ -230,12 +388,13 @@ $("#rows").addEventListener("click", async (e) => {
   b.disabled = true;
   try {
     await api(`/leave-requests/${b.dataset.id}/${b.dataset.act}`, { method: "POST" });
-    toast(`Request ${b.dataset.id}: ${b.dataset.act} done`);
+    toast(t("done_" + b.dataset.act, { id: b.dataset.id }));
   } catch (err) { toast(err.message); }
   await Promise.all([loadBalances(), loadRequests()]).catch(() => {});
 });
 
 $("#logout").addEventListener("click", logout);
+applyStatic();
 token ? start() : ($("#loginView").hidden = false);
 </script>
 </body>
