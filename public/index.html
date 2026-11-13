@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>Leave Approval</title>
 <style>
 :root{
@@ -16,7 +19,7 @@
   --ok:#75e0a7;--ok-bg:#053321;--warn:#fec84b;--warn-bg:#42300a;--bad:#fda29b;--bad-bg:#4a1410;--off:#cbd5e1;--off-bg:#25314a;
 }}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 "IBM Plex Sans Thai","Noto Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;-webkit-font-smoothing:antialiased}
 [hidden]{display:none!important}
 h1,h2{margin:0}
 input,select,textarea,button{font:inherit;color:inherit}
@@ -89,9 +92,9 @@ button.bad{border-color:var(--bad);color:var(--bad)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 @media (max-width:560px){.row2{grid-template-columns:1fr}}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
-table{width:100%;border-collapse:collapse;font-size:.92rem}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
 th,td{text-align:left;padding:10px 12px;white-space:nowrap;border-bottom:1px solid var(--line)}
-th{background:var(--head);color:var(--muted);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em}
+th{background:var(--head);color:var(--muted);font-weight:600;font-size:.85rem}
 tbody tr:nth-child(even){background:var(--zebra)}
 tbody tr:hover{background:var(--hover)}
 tbody tr:last-child td{border-bottom:none}
@@ -399,3 +402,4 @@ token ? start() : ($("#loginView").hidden = false);
 </script>
 </body>
 </html>
+
