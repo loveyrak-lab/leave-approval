@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leave Approval</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1c2430;--muted:#667085;--line:#e4e7ec;--accent:#2f6fed;--accent-text:#fff;
+--ok:#067647;--ok-bg:#dcfae6;--warn:#93370d;--warn-bg:#fef0c7;--bad:#b42318;--bad-bg:#fee4e2;--off:#475467;--off-bg:#eaecf0}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1319;--card:#171c24;--text:#e8ecf2;--muted:#98a2b3;--line:#2a313c;--accent:#5b8cff;--accent-text:#0b1020;
+--ok:#75e0a7;--ok-bg:#053321;--warn:#fec84b;--warn-bg:#42300a;--bad:#fda29b;--bad-bg:#4a1410;--off:#cbd5e1;--off-bg:#2a313c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:1.25rem;margin:0}
+h2{font-size:1rem;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.login{max-width:380px;margin:12vh auto 0}
+label{display:block;font-size:.875rem;color:var(--muted);margin:10px 0 4px}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);padding:7px 12px;border-radius:8px}
+button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);margin-top:14px;width:100%}
+button.sm{padding:4px 9px;font-size:.85rem}
+button.ok{border-color:var(--ok);color:var(--ok)}
+button.bad{border-color:var(--bad);color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.bal{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column}
+.bal span{font-size:1.5rem;font-weight:600}
+.bal small,.muted{color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:500}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:600}
+.PENDING{background:var(--warn-bg);color:var(--warn)}
+.APPROVED{background:var(--ok-bg);color:var(--ok)}
+.REJECTED{background:var(--bad-bg);color:var(--bad)}
+.CANCELLED{background:var(--off-bg);color:var(--off)}
+.err{color:var(--bad);min-height:1.4em;margin:8px 0 0;font-size:.9rem}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+#toast.show{opacity:1}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="loginView" class="card login" hidden>
+  <h1>Leave Approval</h1>
+  <p class="muted">Sign in to request or approve leave.</p>
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <button class="primary" type="submit">Sign in</button>
+    <p id="loginError" class="err" role="alert"></p>
+  </form>
+</section>
+
+<section id="appView" hidden>
+  <header>
+    <h1>Leave Approval</h1>
+    <div><span id="who"></span> <button id="logout" class="sm">Sign out</button></div>
+  </header>
+
+  <div class="card">
+    <h2>My leave balance <span id="balYear" class="muted"></span></h2>
+    <div id="balances" class="grid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Request leave</h2>
+    <form id="leaveForm">
+      <div class="row2">
+        <div><label for="type">Leave type</label><select id="type" required></select></div>
+        <div></div>
+        <div><label for="start">From</label><input id="start" type="date" required></div>
+        <div><label for="end">To</label><input id="end" type="date" required></div>
+      </div>
+      <label for="reason">Reason (optional)</label>
+      <textarea id="reason" rows="2" maxlength="300"></textarea>
+      <button class="primary" type="submit">Submit request</button>
+      <p id="formError" class="err" role="alert"></p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 id="listTitle">Requests</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>#</th><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p id="empty" class="muted" hidden>No leave requests yet.</p>
+  </div>
+</section>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+let token = null, me = null;
+try { token = sessionStorage.getItem("token"); } catch {}
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    method: opts.method || "GET",
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  let data = null;
+  try { data = await res.json(); } catch {}
+  if (!res.ok) {
+    const err = new Error(data?.error ?? data?.message ?? res.statusText);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+function logout() {
+  token = null; me = null;
+  try { sessionStorage.removeItem("token"); } catch {}
+  $("#appView").hidden = true;
+  $("#loginView").hidden = false;
+}
+
+const list = (raw, ...keys) => Array.isArray(raw) ? raw : (keys.map((k) => raw?.[k]).find(Array.isArray) ?? []);
+
+async function loadBalances() {
+  const raw = await api(`/employees/${me.id}/balance`);
+  $("#balYear").textContent = raw?.year ? `(${raw.year})` : "";
+  $("#balances").innerHTML = list(raw, "balances", "items", "leaveTypes").map((r) => `
+    <div class="bal"><b>${esc(r.leaveType ?? r.code ?? r.name)}</b>
+    <span>${esc(r.remaining)} left</span>
+    <small>${esc(r.used)} used of ${esc(r.allowance)}</small></div>`).join("");
+}
+
+async function loadTypes() {
+  const types = list(await api("/leave-types"), "leaveTypes", "items");
+  $("#type").innerHTML = types.map((t) => {
+    const code = t.code ?? t.leaveTypeCode;
+    return `<option value="${esc(code)}">${esc(t.name ?? code)}</option>`;
+  }).join("");
+}
+
+async function loadRequests() {
+  const rows = list(await api("/leave-requests"), "requests", "items");
+  const canDecide = me.role === "MANAGER" || me.role === "ADMIN";
+  $("#listTitle").textContent = me.role === "EMPLOYEE" ? "My requests" : me.role === "MANAGER" ? "My requests and my team's" : "All requests";
+  $("#empty").hidden = rows.length > 0;
+  $("#rows").innerHTML = rows.map((r) => {
+    const mine = r.employeeId !== undefined ? r.employeeId === me.id : r.employeeName === me.name;
+    const btns = [];
+    if (r.status === "PENDING" && canDecide && !mine) {
+      btns.push(`<button class="sm ok" data-act="approve" data-id="${esc(r.id)}">Approve</button>`);
+      btns.push(`<button class="sm bad" data-act="reject" data-id="${esc(r.id)}">Reject</button>`);
+    }
+    if (mine && (r.status === "PENDING" || r.status === "APPROVED")) {
+      btns.push(`<button class="sm" data-act="cancel" data-id="${esc(r.id)}">Cancel</button>`);
+    }
+    return `<tr><td>${esc(r.id)}</td><td>${esc(r.employeeName)}</td><td>${esc(r.leaveType)}</td>
+      <td>${esc(r.startDate)}</td><td>${esc(r.endDate)}</td><td>${esc(r.days)}</td>
+      <td><span class="pill ${esc(r.status)}">${esc(r.status)}</span></td><td>${btns.join(" ")}</td></tr>`;
+  }).join("");
+}
+
+async function start() {
+  try {
+    const m = await api("/auth/me");
+    me = m.user ?? m;
+  } catch { logout(); return; }
+  $("#who").textContent = `${me.name} (${me.role})`;
+  $("#loginView").hidden = true;
+  $("#appView").hidden = false;
+  const today = new Date().toLocaleDateString("sv-SE");
+  $("#start").min = today; $("#end").min = today;
+  await Promise.all([loadBalances(), loadTypes(), loadRequests()]).catch((e) => toast(e.message));
+}
+
+$("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("#loginError").textContent = "";
+  try {
+    const d = await api("/auth/login", { method: "POST", body: { email: $("#email").value, password: $("#password").value } });
+    token = d.token ?? d.accessToken ?? d.jwt;
+    if (!token) throw new Error("Login response has no token field");
+    try { sessionStorage.setItem("token", token); } catch {}
+    $("#password").value = "";
+    await start();
+  } catch (err) { $("#loginError").textContent = err.message; }
+});
+
+$("#start").addEventListener("change", () => {
+  $("#end").min = $("#start").value;
+  if (!$("#end").value || $("#end").value < $("#start").value) $("#end").value = $("#start").value;
+});
+
+$("#leaveForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("#formError").textContent = "";
+  try {
+    await api("/leave-requests", { method: "POST", body: {
+      leaveTypeCode: $("#type").value, startDate: $("#start").value, endDate: $("#end").value,
+      reason: $("#reason").value.trim() || null } });
+    $("#leaveForm").reset();
+    toast("Request submitted");
+    await Promise.all([loadBalances(), loadRequests()]);
+  } catch (err) { $("#formError").textContent = err.message; }
+});
+
+$("#rows").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  b.disabled = true;
+  try {
+    await api(`/leave-requests/${b.dataset.id}/${b.dataset.act}`, { method: "POST" });
+    toast(`Request ${b.dataset.id}: ${b.dataset.act} done`);
+  } catch (err) { toast(err.message); }
+  await Promise.all([loadBalances(), loadRequests()]).catch(() => {});
+});
+
+$("#logout").addEventListener("click", logout);
+token ? start() : ($("#loginView").hidden = false);
+</script>
+</body>
+</html>

@@ -15,8 +15,10 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist dist
 COPY migrations migrations
+COPY public public
 USER node
 EXPOSE 3000
 # ตั้งค่าผ่าน env: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, JWT_SECRET
 # รัน migrations ก่อน แล้วค่อยเปิดเซิร์ฟเวอร์
 CMD ["sh", "-c", "node dist/migrate.js && node dist/index.js"]
+

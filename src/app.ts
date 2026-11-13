@@ -3,10 +3,11 @@ import { authRouter } from "./authRoutes";
 import { pool } from "./db";
 import { HttpError } from "./errors";
 import { router } from "./routes";
+import path from "node:path";
 
 export const app = express();
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, "..", "public")));
 app.get("/health", async (_req, res) => {
   try {
     await pool.query("SELECT 1");
