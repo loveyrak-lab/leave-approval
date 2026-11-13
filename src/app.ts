@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
+import { authRouter } from "./authRoutes";
 import { pool } from "./db";
 import { HttpError } from "./errors";
 import { router } from "./routes";
@@ -15,6 +16,7 @@ app.get("/health", async (_req, res) => {
   }
 });
 
+app.use(authRouter);
 app.use(router);
 
 // Central error handler: HttpError becomes its status code, anything else is a 500.
