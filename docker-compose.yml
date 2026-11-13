@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: leave-db
+    environment:
+      POSTGRES_DB: leave
+      POSTGRES_USER: leave
+      POSTGRES_PASSWORD: leave_dev_pw
+    ports:
+      - "5433:5432"
+    volumes:
+      - leave-data:/var/lib/postgresql/data
+
+volumes:
+  leave-data:
