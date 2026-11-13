@@ -1,9 +1,14 @@
 import { Request, Router } from "express";
+import { authenticate, AuthUser } from "./auth";
 import { pool } from "./db";
 import { countWeekdays, parseDate } from "./days";
 import { HttpError } from "./errors";
+import { hashPassword } from "./password";
 
 export const router = Router();
+
+// Everything below this line requires a valid login token.
+router.use(authenticate);
 
 const ROLES = ["EMPLOYEE", "MANAGER", "ADMIN"];
 const STATUSES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"];
@@ -12,14 +17,16 @@ function pgCode(err: unknown): string | undefined {
   return (err as { code?: string }).code;
 }
 
-/** Temporary identity until JWT login is added: the caller says who they are. */
-function actingEmployeeId(req: Request): number {
-  const raw = req.header("x-employee-id");
-  const id = Number(raw);
-  if (!raw || !Number.isInteger(id) || id <= 0) {
-    throw new HttpError(401, "x-employee-id header is required");
-  }
-  return id;
+/** The logged-in user, taken from the verified token. */
+function me(req: Request): AuthUser {
+  if (!req.user) throw new HttpError(401, "not authenticated");
+  return req.user;
+}
+
+function requireRole(req: Request, ...roles: string[]): AuthUser {
+  const user = me(req);
+  if (!roles.includes(user.role)) throw new HttpError(403, "you do not have permission to do this");
+  return user;
 }
 
 function idParam(req: Request): number {
@@ -41,24 +48,32 @@ router.get("/leave-types", async (_req, res) => {
   res.json(r.rows);
 });
 
-router.get("/employees", async (_req, res) => {
-  const r = await pool.query(
-    `SELECT id, name, email, role, manager_id AS "managerId" FROM employee ORDER BY id`
-  );
+// Admin sees everyone; a manager sees themselves and their direct reports.
+router.get("/employees", async (req, res) => {
+  const user = requireRole(req, "ADMIN", "MANAGER");
+  const base = `SELECT id, name, email, role, manager_id AS "managerId" FROM employee`;
+  const r =
+    user.role === "ADMIN"
+      ? await pool.query(`${base} ORDER BY id`)
+      : await pool.query(`${base} WHERE id = $1 OR manager_id = $1 ORDER BY id`, [user.id]);
   res.json(r.rows);
 });
 
 router.post("/employees", async (req, res) => {
-  const { name, email, role = "EMPLOYEE", managerId = null } = req.body ?? {};
+  requireRole(req, "ADMIN");
+  const { name, email, password, role = "EMPLOYEE", managerId = null } = req.body ?? {};
   if (typeof name !== "string" || !name.trim() || typeof email !== "string" || !email.includes("@")) {
     throw new HttpError(400, "name and email are required");
+  }
+  if (typeof password !== "string" || password.length < 8) {
+    throw new HttpError(400, "password must be at least 8 characters");
   }
   if (!ROLES.includes(role)) throw new HttpError(400, "invalid role");
   try {
     const r = await pool.query(
-      `INSERT INTO employee (name, email, role, manager_id) VALUES ($1, $2, $3, $4)
+      `INSERT INTO employee (name, email, role, manager_id, password_hash) VALUES ($1, $2, $3, $4, $5)
        RETURNING id, name, email, role, manager_id AS "managerId"`,
-      [name.trim(), email.trim().toLowerCase(), role, managerId]
+      [name.trim(), email.trim().toLowerCase(), role, managerId, await hashPassword(password)]
     );
     res.status(201).json(r.rows[0]);
   } catch (err) {
@@ -70,13 +85,16 @@ router.post("/employees", async (req, res) => {
 
 /** Allowance, days used (pending + approved) and days remaining per leave type for one year. */
 router.get("/employees/:id/balance", async (req, res) => {
+  const user = me(req);
   const id = idParam(req);
   const year =
     typeof req.query.year === "string" ? Number(req.query.year) : Number(todayInBangkok().slice(0, 4));
   if (!Number.isInteger(year)) throw new HttpError(400, "invalid year");
 
-  const emp = await pool.query(`SELECT id FROM employee WHERE id = $1`, [id]);
+  const emp = await pool.query(`SELECT manager_id AS "managerId" FROM employee WHERE id = $1`, [id]);
   if (emp.rows.length === 0) throw new HttpError(404, "employee not found");
+  const allowed = user.id === id || user.role === "ADMIN" || emp.rows[0].managerId === user.id;
+  if (!allowed) throw new HttpError(403, "you do not have permission to view this balance");
 
   const r = await pool.query(
     `SELECT t.code AS "leaveType", t.days_per_year AS allowance,
@@ -104,7 +122,7 @@ router.get("/employees/:id/balance", async (req, res) => {
 // ---------- leave requests ----------
 
 router.post("/leave-requests", async (req, res) => {
-  const employeeId = actingEmployeeId(req);
+  const employeeId = me(req).id;
   const { leaveTypeCode, startDate, endDate, reason = null } = req.body ?? {};
 
   const start = parseDate(startDate);
@@ -165,9 +183,19 @@ router.post("/leave-requests", async (req, res) => {
   }
 });
 
+// Employee: own requests. Manager: own + direct reports. Admin: everyone.
 router.get("/leave-requests", async (req, res) => {
+  const user = me(req);
   const where: string[] = [];
   const params: unknown[] = [];
+
+  if (user.role === "EMPLOYEE") {
+    params.push(user.id);
+    where.push(`r.employee_id = $${params.length}`);
+  } else if (user.role === "MANAGER") {
+    params.push(user.id);
+    where.push(`(r.employee_id = $${params.length} OR e.manager_id = $${params.length})`);
+  }
 
   if (typeof req.query.employeeId === "string") {
     const id = Number(req.query.employeeId);
@@ -196,7 +224,7 @@ router.get("/leave-requests", async (req, res) => {
 });
 
 async function decide(req: Request, newStatus: "APPROVED" | "REJECTED") {
-  const deciderId = actingEmployeeId(req);
+  const deciderId = me(req).id;
   const id = idParam(req);
   const note = typeof req.body?.note === "string" ? req.body.note : null;
 
@@ -208,7 +236,7 @@ async function decide(req: Request, newStatus: "APPROVED" | "REJECTED") {
      WHERE r.id = $1`,
     [id, deciderId]
   );
-  if (info.rows.length === 0) throw new HttpError(404, "leave request or decider not found");
+  if (info.rows.length === 0) throw new HttpError(404, "leave request not found");
 
   const { requesterId, managerId, deciderRole } = info.rows[0];
   if (requesterId === deciderId) throw new HttpError(403, "you cannot decide your own request");
@@ -237,7 +265,7 @@ router.post("/leave-requests/:id/reject", async (req, res) => {
 });
 
 router.post("/leave-requests/:id/cancel", async (req, res) => {
-  const employeeId = actingEmployeeId(req);
+  const employeeId = me(req).id;
   const id = idParam(req);
 
   const found = await pool.query(`SELECT employee_id AS "ownerId" FROM leave_request WHERE id = $1`, [id]);
